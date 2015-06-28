@@ -11,4 +11,6 @@ The DigitalOcean API allows domain name records to be updated. This means that i
 Usage
 -----
 
-doduc has a server, which runs on your DigitalOcean droplet (or any other remote server). The server gets the source IP from the incoming HTTP requests and returns it to the client. It runs on port 26992. Run the `server` executable on the server.
+doduc has a server, which runs on your DigitalOcean droplet (or any other remote server). The server gets the source IP from the incoming HTTP requests and returns it to the client. It runs on port 18768. Thus, to run the server in the background on your machine, you would run:
+
+`doduc-server &`
