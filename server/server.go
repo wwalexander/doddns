@@ -28,7 +28,7 @@ func main() {
 	}()
 	if (*flagCertFile != "" && *flagKeyFile != "") {
 		go func() {
-			errs <- http.ListenAndServeTLS("26693", *flagCertFile, *flagKeyFile, nil)
+			errs <- http.ListenAndServeTLS(":26693", *flagCertFile, *flagKeyFile, nil)
 		}()
 	}
 	for err := range errs {
