@@ -85,7 +85,7 @@ func main() {
 	requireFlags(flagDomain, flagSubdomain, flagIPServer, flagToken)
 	token, err := ioutil.ReadFile(*flagToken)
 	if err != nil {
-		log.Fatalf("unable to read token file '%s': %v", err)
+		log.Fatalf("unable to read token file '%s': %v", *flagToken, err)
 	}
 	ts := tokenSource{accessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
