@@ -43,13 +43,13 @@ func update(domain string, subdomain string, ipServer string, client *godo.Clien
 	}
 	resp, err := http.Get(ipServer)
 	if err != nil {
-		log.Println("unable to open request to IP server: %v", err)
+		log.Printf("unable to open request to IP server: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("unable to read response from IP server: %v", err)
+		log.Printf("unable to read response from IP server: %v", err)
 	}
 	newAddr := strings.TrimRight(string(body), "\n")
 	drer := &godo.DomainRecordEditRequest{
@@ -61,14 +61,14 @@ func update(domain string, subdomain string, ipServer string, client *godo.Clien
 		log.Println("record not found; creating new record")
 		_, _, err := client.Domains.CreateRecord(domain, drer)
 		if err != nil {
-			log.Println("unable to create new record: %v", err)
+			log.Printf("unable to create new record: %v", err)
 			return
 		}
 	} else if newAddr != addr {
 		log.Println("address changed; updating record")
 		_, _, err := client.Domains.EditRecord(domain, *id, drer)
 		if err != nil {
-			log.Println("unable to update record: %v", err)
+			log.Printf("unable to update record: %v", err)
 			return
 		}
 	} else {
@@ -85,7 +85,7 @@ func main() {
 	requireFlags(flagDomain, flagSubdomain, flagIPServer, flagToken)
 	token, err := ioutil.ReadFile(*flagToken)
 	if err != nil {
-		log.Fatal("unable to read token file '%s': %v", err)
+		log.Fatalf("unable to read token file '%s': %v", err)
 	}
 	ts := tokenSource{accessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
