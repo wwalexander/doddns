@@ -22,12 +22,17 @@ func main() {
 	flagKeyFile := flag.String("key", "", "the  SSL private key")
 	flag.Parse()
 	http.HandleFunc("/", handler)
-	port := ":26992"
-	var err error
+	errs := make(chan error)
+	go func() {
+		errs <- http.ListenAndServe(":26692", nil)
+	}()
 	if (*flagCertFile != "" && *flagKeyFile != "") {
-		err = http.ListenAndServeTLS(port, *flagCertFile, *flagKeyFile, nil)
-	} else {
-		err = http.ListenAndServe(port, nil)
+		go func() {
+			errs <- http.ListenAndServeTLS("26693", *flagCertFile, *flagKeyFile, nil)
+		}()
 	}
-	log.Fatal(err)
+	for err := range errs {
+		log.Print(err)
+	}
+	log.Panic(1)
 }
