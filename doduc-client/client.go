@@ -81,6 +81,7 @@ func main() {
 	flagSubdomain := flag.String("subdomain", "", "the subdomain that should point to your IP address")
 	flagIPServer := flag.String("ip_server", "", "the doduc server")
 	flagToken := flag.String("token", "", "the file containing your OAuth2 token")
+	flagInterval := flag.Uint("interval", 300, "the interval between updates")
 	flag.Parse()
 	requireFlags(flagDomain, flagSubdomain, flagIPServer, flagToken)
 	token, err := ioutil.ReadFile(*flagToken)
@@ -91,6 +92,6 @@ func main() {
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
 	for {
 		update(*flagDomain, *flagSubdomain, *flagIPServer, client)
-		time.Sleep(5 * time.Minute)
+		time.Sleep(time.Duration(*flagInterval) * time.Second)
 	}
 }
