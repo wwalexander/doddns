@@ -37,4 +37,9 @@ Now you can run the client by specifying the DigitalOcean domain you want to upd
 
 `doduc-client -domain mywebsite.com -subdomain home -ip_server http://www.mywebsite.com:18768 -token token`
 
+By default, the address will be updated every 5 minutes. To specify the interval in seconds, use the `interval` flag. For instance, if I wanted updates to occur every 10 minutes:
+
+
+`doduc-client -domain mywebsite.com -subdomain home -ip_server http://www.mywebsite.com:18768 -token token -interval 600`
+
 Similarly to the server, the client can be run in the background or with `nohup`.
