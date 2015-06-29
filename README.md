@@ -12,6 +12,11 @@ Existing clients seem to query third-party services like
 [ifconfig.me](http://ifconfig.me/ip). Rather than relying on these services, I
 wanted to use my own DigitalOcean droplet to serve the IPs.
 
+Building
+--------
+
+Run `go build` in `doduc-client` and `doduc-server`.
+
 Usage
 -----
 
