@@ -79,7 +79,7 @@ func update(domain string, subdomain string, ipServer string, client *godo.Clien
 func main() {
 	flagDomain := flag.String("domain", "", "the DigitalOcean domain you want to update")
 	flagSubdomain := flag.String("subdomain", "", "the subdomain that should point to your IP address")
-	flagIPServer := flag.String("ip_server", "", "the doduc server")
+	flagIPServer := flag.String("ip-server", "", "the doduc server")
 	flagToken := flag.String("token", "", "the file containing your OAuth2 token")
 	flagInterval := flag.Uint("interval", 300, "the interval between updates")
 	flag.Parse()
