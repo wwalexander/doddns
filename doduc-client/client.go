@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -77,6 +78,10 @@ func update(domain string, subdomain string, ipServer string, client *godo.Clien
 }
 
 func main() {
+	logFile, err := os.OpenFile("doduc-client.log", os.O_APPEND|os.O_CREATE, 0200)
+	if err != nil {
+		log.Fatal("unable to open log file")
+	}
 	flagDomain := flag.String("domain", "", "the DigitalOcean domain you want to update")
 	flagSubdomain := flag.String("subdomain", "", "the subdomain that should point to your IP address")
 	flagIPServer := flag.String("ip-server", "", "the doduc server")
@@ -90,6 +95,7 @@ func main() {
 	}
 	ts := tokenSource{accessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
+	log.SetOutput(logFile)
 	for {
 		update(*flagDomain, *flagSubdomain, *flagIPServer, client)
 		time.Sleep(time.Duration(*flagInterval) * time.Second)

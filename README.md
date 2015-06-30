@@ -20,12 +20,14 @@ Run `go build` in `doduc-client` and `doduc-server`.
 Usage
 -----
 
+Both the server and client save output to a log file (`doduc-server.log` and `doduc-client.log`, respectively).
+
 ### Server
 
 doduc has a server, which runs on your DigitalOcean droplet (or any other remote
-server). The server gets the source IP from incoming HTTP requests and
-returns it to the client. It runs on port 18768. Thus, to run the server in the
-background on your machine, you would run:
+server). The server gets the source IP from incoming HTTP requests and returns
+it to the client. It runs on port 18768. Thus, to run the server on  on your
+machine, you would run:
 
 `doduc-server`
 
@@ -33,12 +35,6 @@ If you wanted to run the server in the background so that you could exit the
 shell, you could run:
 
 `doduc-server &`
-
-or if you wanted to view any errors which caused the server to quit:
-
-`nohup doduc-server &`
-
-which would save the output to a file in the same directory.
 
 ### Client
 
@@ -63,8 +59,8 @@ By default, the address will be updated every 5 minutes. To specify the interval
 in seconds, use the `interval` flag. For instance, if I wanted updates to occur
 every 10 minutes:
 
-
 `doduc-client -domain mywebsite.com -subdomain home -ip_server http://www.mywebsite.com:18768 -token token -interval 600`
 
-Similarly to the server, the client can be run in the background or with
-`nohup`.
+Similarly to the server, the client can be run in the background. If you are running the client on Windows, you can use the `Start-Process` cmdlet:
+
+`Start-Process doduc-client.exe -ArgumentList -domain, mywebsite.com, -subdomain, home, -ip-server, http://www.mywebsite.com:18768 -token token -WindowStyle Hidden`
