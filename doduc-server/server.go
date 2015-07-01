@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -18,11 +19,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	flagPort := flag.Uint("port", 18768, "the port to listen on")
+	flag.Parse()
 	logFile, err := os.OpenFile("doduc-server.log", os.O_APPEND|os.O_CREATE, 0200)
 	if err != nil {
 		log.Fatal("unable to open log file")
 	}
 	log.SetOutput(logFile)
 	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":18768", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *flagPort), nil))
 }
