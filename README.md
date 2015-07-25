@@ -39,9 +39,15 @@ Usage
 
 ### Server
 
-Simply run `doduc-server`.
+    doduc-server
+
+#### Flags
+
+`-port`: the port to listen on (defaults to 18768)
 
 ### Client
+
+    doduc-client -domain=[domain] -subdomain=[subdomain] -ip-server=[IP server URL] -token=[path to token]
 
 If you wish to use another server to get your external IP, the only requirement
 is that it must respond to a GET HTTP request with a valid IP address (e.g.
@@ -52,18 +58,20 @@ To run the client, you must first
 for the client to use. Save the generated token to a file (e.g. `token` in the
 root of this repository).
 
-Now you can run the client by specifying the DigitalOcean domain you want to
-update, the subdomain you wish to point to your IP address, the URL of your IP
-server, and the path to the file containing your OAuth token. For instance, if
-you wanted `home.mywebsite.com` to point to your IP address, you had
-`doduc-server` running on `www.mywebsite.com`, and you had your OAuth token
-saved in `token` in the current directory, you would run the client on your
-machine as follows:
+For instance, if you wanted `home.mywebsite.com` to point to your IP, you had
+`doduc-server` running on `www.mywebsite.com:18768`, and your OAuth token was
+saved in the `doduc-client` directory as `token`, you would run:
 
-`doduc-client -domain mywebsite.com -subdomain home -ip_server http://www.mywebsite.com:18768 -token token`
+    doduc-client -domain=mywebsite.com -subdomain= -ip-server=http://www.mywebsite.com:18768 -token=token
 
-By default, the address will be updated every 5 minutes. To specify the interval
-in seconds, use the `interval` flag. For instance, if you wanted updates to
-occur every 10 minutes:
+#### Flags
 
-`doduc-client -domain mywebsite.com -subdomain home -ip_server http://www.mywebsite.com:18768 -token token -interval 600`
+`-domain`: the Digital domain you want to update
+
+`-subdomain`: the subdomain that should point to your IP address
+
+`-ip-server`: the doduc server
+
+`-token`: the file containing your OAuth2 token
+
+`-interval`: the interval between updates
