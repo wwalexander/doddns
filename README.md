@@ -58,11 +58,11 @@ To run the client, you must first
 for the client to use. Save the generated token to a file (e.g. `token` in the
 root of this repository).
 
-For instance, if you wanted `home.mywebsite.com` to point to your IP, you had
-`doduc-server` running on `www.mywebsite.com:18768`, and your OAuth token was
+For instance, if you wanted `home.mydomain.com` to point to your IP, you had
+`doduc-server` running on `www.mydomain.com:18768`, and your OAuth token was
 saved in the `doduc-client` directory as `token`, you would run:
 
-    doduc-client -domain=mywebsite.com -subdomain= -ip-server=http://www.mywebsite.com:18768 -token=token
+    doduc-client -domain=mydomain.com -subdomain= -ip-server=http://www.mydomain.com:18768 -token=token
 
 #### Flags
 
