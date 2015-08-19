@@ -67,6 +67,6 @@ To run the client, you must first
 for the client to use. Save the generated token to a file (e.g. `token` in the
 root of this repository).
 
-#### Flags
+#### Options
 
 `-interval`: the interval between updates in seconds (defaults to 300)
