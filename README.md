@@ -23,31 +23,40 @@ server and client save output to a log file (`doduc-server.log` and
 The server and client are designed to run continuously, so you will probably
 want to run them in the background. On POSIX operating systems, you can run
 
-`doduc-[program] &`
+    doduc-[program] &
 
 In Windows PowerShell, you can run
 
-`Start-Process doduc-[program] -ArgumentList [comma-separated list of arguments] -WindowStyle Hidden`
+    Start-Process doduc-[program] -ArgumentList [comma-separated list of arguments] -WindowStyle Hidden
 
-Building
---------
+Server
+------
 
-Run `go build` in `doduc-client` and `doduc-server`.
+### Building
 
-Usage
------
+    go build
 
-### Server
+### Usage
 
-    doduc-server
+    doduc-server [OPTIONS]
 
 #### Flags
 
 `-port`: the port to listen on (defaults to 18768)
 
-### Client
+Client
+------
 
-    doduc-client -domain=[domain] -subdomain=[subdomain] -ip-server=[IP server URL] -token=[path to token]
+### Building
+
+    go build
+
+### Usage
+
+Periodically update the `A` record for `SUBDOMAIN`.`DOMAIN` using the IP
+returned from `SERVER`, using the DigitalOcean API token stored in `TOKEN`:
+
+    doduc-client [OPTIONS] [DOMAIN] [SUBDOMAIN] [SERVER] [TOKEN]
 
 If you wish to use another server to get your external IP, the only requirement
 is that it must respond to a GET HTTP request with a valid IP address (e.g.
@@ -58,20 +67,6 @@ To run the client, you must first
 for the client to use. Save the generated token to a file (e.g. `token` in the
 root of this repository).
 
-For instance, if you wanted `home.mydomain.com` to point to your IP, you had
-`doduc-server` running on `www.mydomain.com:18768`, and your OAuth token was
-saved in the `doduc-client` directory as `token`, you would run:
-
-    doduc-client -domain=mydomain.com -subdomain= -ip-server=http://www.mydomain.com:18768 -token=token
-
 #### Flags
 
-`-domain`: the Digital domain you want to update
-
-`-subdomain`: the subdomain that should point to your IP address
-
-`-ip-server`: the doduc server
-
-`-token`: the file containing your OAuth2 token
-
-`-interval`: the interval between updates
+`-interval`: the interval between updates in seconds (defaults to 300)

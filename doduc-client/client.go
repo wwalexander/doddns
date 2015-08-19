@@ -16,14 +16,6 @@ type tokenSource struct {
 	accessToken string
 }
 
-func requireFlags(flags ...*string) {
-	for _, flag := range flags {
-		if *flag == "" {
-			log.Fatal("missing required flag")
-		}
-	}
-}
-
 func (ts tokenSource) Token() (*oauth2.Token, error) {
 	return &oauth2.Token{AccessToken: ts.accessToken}, nil
 }
@@ -82,22 +74,26 @@ func main() {
 	if err != nil {
 		log.Fatal("unable to open log file")
 	}
-	flagDomain := flag.String("domain", "", "the DigitalOcean domain you want to update")
-	flagSubdomain := flag.String("subdomain", "", "the subdomain that should point to your IP address")
-	flagIPServer := flag.String("ip-server", "", "the doduc server")
-	flagToken := flag.String("token", "", "the file containing your OAuth2 token")
-	flagInterval := flag.Uint("interval", 300, "the interval between updates")
+	flagInterval := flag.Uint("interval", 300, "the interval between updates in seconds")
 	flag.Parse()
-	requireFlags(flagDomain, flagSubdomain, flagIPServer, flagToken)
-	token, err := ioutil.ReadFile(*flagToken)
+	args := flag.Args()
+	if len(args) != 4 {
+		flag.Usage()
+		os.Exit(1)
+	}
+	domain := args[0]
+	subdomain := args[1]
+	ipServer := args[2]
+	tokenPath := args[3]
+	token, err := ioutil.ReadFile(tokenPath)
 	if err != nil {
-		log.Fatalf("unable to read token file '%s': %v", *flagToken, err)
+		log.Fatalf("unable to read token file '%s': %v", tokenPath, err)
 	}
 	ts := tokenSource{accessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
 	log.SetOutput(logFile)
 	for {
-		update(*flagDomain, *flagSubdomain, *flagIPServer, client)
+		update(domain, subdomain, ipServer, client)
 		time.Sleep(time.Duration(*flagInterval) * time.Second)
 	}
 }
