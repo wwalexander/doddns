@@ -60,7 +60,7 @@ returned from `SERVER`, using the DigitalOcean API token stored in `TOKEN`:
 
 If you wish to use another server to get your external IP, the only requirement
 is that it must respond to a GET HTTP request with a valid IP address (e.g.
-[ifconfig.me](ifconfig.me/ip)).
+[ifconfig.me](http://ifconfig.me/ip)).
 
 To run the client, you must first
 [generate an OAuth token](https://cloud.digitalocean.com/settings/tokens/new)
