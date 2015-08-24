@@ -1,5 +1,5 @@
-doduc
-=====
+doddns
+======
 
 A dynamic DNS system for DigitalOcean
 
@@ -12,22 +12,21 @@ Existing clients seem to query third-party services like
 [ifconfig.me](http://ifconfig.me/ip). Rather than relying on these services, I
 wanted to use my own DigitalOcean droplet to serve the IPs.
 
-doduc has two components. The first is a server, which runs on your DigitalOcean
+doddns has two components. The first is a server, which runs on your DigitalOcean
 droplet (or any other remote server). It runs on port 18768 and responds to all
 HTTP requests with their source IP. The second is a client, which runs on your
 local computer. It fetches your IP address from the server and updates your
 DigitalOcean DNS for your chosen domain and subdomain with the address. Both the
-server and client save output to a log file (`doduc-server.log` and
-`doduc-client.log`, respectively).
+server and client save output to a log file.
 
 The server and client are designed to run continuously, so you will probably
 want to run them in the background. On POSIX operating systems, you can run
 
-    doduc-[program] &
+    doddns-[program] &
 
 In Windows PowerShell, you can run
 
-    Start-Process doduc-[program] -ArgumentList [comma-separated list of arguments] -WindowStyle Hidden
+    Start-Process doddns-[program] -ArgumentList [comma-separated list of arguments] -WindowStyle Hidden
 
 Server
 ------
@@ -38,7 +37,7 @@ Server
 
 ### Usage
 
-    doduc-server [OPTIONS]
+    doddns-server [OPTIONS]
 
 #### Flags
 
@@ -56,7 +55,7 @@ Client
 Periodically update the `A` record for `SUBDOMAIN`.`DOMAIN` using the IP
 returned from `SERVER`, using the DigitalOcean API token stored in `TOKEN`:
 
-    doduc-client [OPTIONS] [DOMAIN] [SUBDOMAIN] [SERVER] [TOKEN]
+    doddns-client [OPTIONS] [DOMAIN] [SUBDOMAIN] [SERVER] [TOKEN]
 
 If you wish to use another server to get your external IP, the only requirement
 is that it must respond to a GET HTTP request with a valid IP address (e.g.

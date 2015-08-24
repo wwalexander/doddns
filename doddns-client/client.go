@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -97,7 +98,9 @@ func main() {
 	}
 	ts := TokenSource{AccessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
-	logFile, err := os.OpenFile("doduc-client.log", os.O_APPEND|os.O_CREATE, 0666)
+	logFile, err := os.OpenFile(filepath.Base(strings.TrimSuffix(os.Args[0],
+				filepath.Ext(os.Args[0])))+".log",
+		os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal("unable to open log file")
 	}
