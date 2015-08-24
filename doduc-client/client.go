@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/digitalocean/godo"
 	"golang.org/x/oauth2"
 	"io/ioutil"
@@ -12,15 +13,19 @@ import (
 	"time"
 )
 
-type tokenSource struct {
-	accessToken string
+// TokenSource returns a token.
+type TokenSource struct {
+	AccessToken string
 }
 
-func (ts tokenSource) Token() (*oauth2.Token, error) {
-	return &oauth2.Token{AccessToken: ts.accessToken}, nil
+// Token returns a token.
+func (ts TokenSource) Token() (*oauth2.Token, error) {
+	return &oauth2.Token{AccessToken: ts.AccessToken}, nil
 }
 
-func update(domain string, subdomain string, ipServer string, client *godo.Client) {
+// Update checks the client's current IP address against the DigitalOcean DNS
+// record, and updates the record if necessary.
+func Update(domain string, subdomain string, ipServer string, client *godo.Client) {
 	drs, _, err := client.Domains.Records(domain, nil)
 	if err != nil {
 		log.Printf("unable to fetch domain records: %v", err)
@@ -74,7 +79,12 @@ func main() {
 	if err != nil {
 		log.Fatal("unable to open log file")
 	}
-	flagInterval := flag.Uint("interval", 300, "the interval between updates in seconds")
+	finterval := flag.Uint("interval", 300, "the interval between updates in seconds")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "%s [OPTIONS] [DOMAIN] [SUBDOMAIN] [SERVER] [TOKEN]\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 4 {
@@ -89,11 +99,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to read token file '%s': %v", tokenPath, err)
 	}
-	ts := tokenSource{accessToken: string(token)}
+	ts := TokenSource{AccessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
 	log.SetOutput(logFile)
 	for {
-		update(domain, subdomain, ipServer, client)
-		time.Sleep(time.Duration(*flagInterval) * time.Second)
+		Update(domain, subdomain, ipServer, client)
+		time.Sleep(time.Duration(*finterval) * time.Second)
 	}
 }
