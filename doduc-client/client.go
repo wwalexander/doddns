@@ -75,10 +75,6 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 }
 
 func main() {
-	logFile, err := os.OpenFile("doduc-client.log", os.O_APPEND|os.O_CREATE, 0200)
-	if err != nil {
-		log.Fatal("unable to open log file")
-	}
 	finterval := flag.Uint("interval", 300, "the interval between updates in seconds")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -101,6 +97,10 @@ func main() {
 	}
 	ts := TokenSource{AccessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
+	logFile, err := os.OpenFile("doduc-client.log", os.O_APPEND|os.O_CREATE, 0666)
+	if err != nil {
+		log.Fatal("unable to open log file")
+	}
 	log.SetOutput(logFile)
 	for {
 		Update(domain, subdomain, ipServer, client)
