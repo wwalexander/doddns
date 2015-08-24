@@ -21,12 +21,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fport := flag.Uint("port", 18768, "the port to listen on")
-	flagParse()
+	flag.Parse()
 	logFile, err := os.OpenFile("doduc-server.log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0200)
 	if err != nil {
 		log.Fatal("unable to open log file")
 	}
 	log.SetOutput(logFile)
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", Handler)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *fport), nil))
 }
