@@ -26,11 +26,10 @@ func (ts TokenSource) Token() (*oauth2.Token, error) {
 
 // Update checks the client's current IP address against the DigitalOcean DNS
 // record, and updates the record if necessary.
-func Update(domain string, subdomain string, ipServer string, client *godo.Client) {
+func Update(domain string, subdomain string, ipServer string, client *godo.Client) error {
 	drs, _, err := client.Domains.Records(domain, nil)
 	if err != nil {
-		log.Printf("unable to fetch domain records: %v", err)
-		return
+		return err
 	}
 	var id *int
 	var addr string
@@ -42,13 +41,12 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 	}
 	resp, err := http.Get(ipServer)
 	if err != nil {
-		log.Printf("unable to open request to IP server: %v", err)
-		return
+		return err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("unable to read response from IP server: %v", err)
+		return err
 	}
 	newAddr := strings.TrimRight(string(body), "\n")
 	drer := &godo.DomainRecordEditRequest{
@@ -57,22 +55,15 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 		Data: newAddr,
 	}
 	if id == nil {
-		log.Println("record not found; creating new record")
-		_, _, err := client.Domains.CreateRecord(domain, drer)
-		if err != nil {
-			log.Printf("unable to create new record: %v", err)
-			return
+		if _, _, err := client.Domains.CreateRecord(domain, drer); err != nil {
+			return err
 		}
 	} else if newAddr != addr {
-		log.Println("address changed; updating record")
-		_, _, err := client.Domains.EditRecord(domain, *id, drer)
-		if err != nil {
-			log.Printf("unable to update record: %v", err)
-			return
+		if _, _, err := client.Domains.EditRecord(domain, *id, drer); err != nil {
+			return err
 		}
-	} else {
-		log.Println("record is up to date")
 	}
+	return nil
 }
 
 func main() {
@@ -99,14 +90,16 @@ func main() {
 	ts := TokenSource{AccessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
 	logFile, err := os.OpenFile(filepath.Base(strings.TrimSuffix(os.Args[0],
-				filepath.Ext(os.Args[0])))+".log",
+		filepath.Ext(os.Args[0])))+".log",
 		os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal("unable to open log file")
 	}
 	log.SetOutput(logFile)
 	for {
-		Update(domain, subdomain, ipServer, client)
+		if err := Update(domain, subdomain, ipServer, client); err != nil {
+			log.Println(err)
+		}
 		time.Sleep(time.Duration(*finterval) * time.Second)
 	}
 }
