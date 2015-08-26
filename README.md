@@ -13,11 +13,11 @@ Existing clients seem to query third-party services like
 wanted to use my own DigitalOcean droplet to serve the IPs.
 
 doddns has two components. The first is a server, which runs on your DigitalOcean
-droplet (or any other remote server). It runs on port 18768 and responds to all
-HTTP requests with their source IP. The second is a client, which runs on your
-local computer. It fetches your IP address from the server and updates your
-DigitalOcean DNS for your chosen domain and subdomain with the address. Both the
-server and client save output to a log file.
+droplet (or any other remote server). It runs on port 18768 by default and
+responds to all HTTP requests with their source IP. The second is a client,
+which runs on your local computer. It fetches your IP address from the server
+and updates your DigitalOcean DNS for your chosen domain and subdomain with the
+address. Both the server and client save output to a log file.
 
 The server and client are designed to run continuously, so you will probably
 want to run them in the background. On POSIX operating systems, you can run
