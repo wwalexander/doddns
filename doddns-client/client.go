@@ -14,17 +14,15 @@ import (
 	"time"
 )
 
-// TokenSource returns a token.
-type TokenSource struct {
-	AccessToken string
+type tokenSource struct {
+	accessToken string
 }
 
-// Token returns a token.
-func (ts TokenSource) Token() (*oauth2.Token, error) {
-	return &oauth2.Token{AccessToken: ts.AccessToken}, nil
+func (ts tokenSource) Token() (*oauth2.Token, error) {
+	return &oauth2.Token{AccessToken: ts.accessToken}, nil
 }
 
-// Update checks the client's current IP address against the DigitalOcean DNS
+// Update checks the client's current IP address against the DigitalOcean DNS A
 // record, and updates the record if necessary.
 func Update(domain string, subdomain string, ipServer string, client *godo.Client) error {
 	drs, _, err := client.Domains.Records(domain, nil)
@@ -66,12 +64,21 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 	return nil
 }
 
+const usage = `usage: doddns-client [-interval seconds] [domain] [subdomain] [server] [token]
+
+doddns-client periodically updates the DNS A record for subdomain.domain using
+the IP address returned by the named server via HTTP. To authenticate,
+doddns-client uses the DigitalOcean API token saved at the named path. By
+default, doddns-client updates the record every 5 minutes; this interval can be
+set to a give number of second using the -interval flag.
+
+doddns-server provides an implementation of a server that can be used by
+doddns-client.`
+
 func main() {
 	finterval := flag.Uint("interval", 300, "the interval between updates in seconds")
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "%s [OPTIONS] [DOMAIN] [SUBDOMAIN] [SERVER] [TOKEN]\n", os.Args[0])
-		flag.PrintDefaults()
+		fmt.Fprintln(os.Stderr, usage)
 	}
 	flag.Parse()
 	args := flag.Args()
@@ -87,7 +94,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to read token file '%s': %v", tokenPath, err)
 	}
-	ts := TokenSource{AccessToken: string(token)}
+	ts := tokenSource{accessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
 	logFile, err := os.OpenFile(filepath.Base(strings.TrimSuffix(os.Args[0],
 		filepath.Ext(os.Args[0])))+".log",

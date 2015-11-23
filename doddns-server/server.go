@@ -37,22 +37,37 @@ func flagIsSet(name string) bool {
 	return set
 }
 
+const usage = `usage: doddns-server [-cert path] [-key path] [-port port]
+
+doddns-server responds to HTTP requests with their source IP address.
+doddns-server runs on port 18768, or the port named by the -port flag. If the
+-cert and -key flags are specified, doddns-server will listen for HTTPS
+connections; otherwise, doddns-server will listen for HTTP connections.`
+
 func main() {
 	fcert := flag.String(fcertName, "", "the TLS certificate to use")
 	fkey := flag.String(fkeyName, "", "the TLS key to use")
 	fport := flag.Uint("port", 18768, "the port to listen on")
-	flag.Parse()
-	fcertSet := flagIsSet(fcertName)
-	fkeySet := flagIsSet(fkeyName)
-	if fcertSet && !fkeySet {
-		log.Fatalf("%s set without %s", fcertName, fkeyName)
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, usage)
 	}
-	if !fcertSet && fkeySet {
-		log.Fatalf("%s set without %s", fkeyName, fcertName)
+	flag.Parse()
+	fcertSet := false
+	fkeySet := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == fcertName {
+			fcertSet = true
+		} else if f.Name == fkeyName {
+			fkeySet = true
+		}
+	})
+	if (fcertSet && !fkeySet) || (!fcertSet && fkeySet) {
+		flag.Usage()
+		os.Exit(1)
 	}
 	tls := fcertSet && fkeySet
 	logFile, err := os.OpenFile(filepath.Base(strings.TrimSuffix(os.Args[0],
-				filepath.Ext(os.Args[0])))+".log",
+		filepath.Ext(os.Args[0])))+".log",
 		os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal("unable to open log file")
