@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -64,14 +63,12 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 	return nil
 }
 
-const usage = `usage: doddns-client [domain] [subdomain] [server] [token]
+const usage = `usage: doddns-client [domain] [subdomain] [URI] [token]
 
-
-================================================================================
 doddns-client periodically updates the DNS A record for subdomain.domain using
-the IP address returned by the named server via HTTP. To authenticate,
+the IP address returned by the named HTTP/HTTPS URI. To authenticate,
 doddns-client uses the DigitalOcean API token saved at the named path. The
-record is updated every 1800 seconds (the fixed TTL of DigitalOcean DNS records).
+record is updated to match the TTL of the domain.
 
 doddns-server provides an implementation of a server that can be used by
 doddns-client.`
@@ -96,19 +93,19 @@ func main() {
 	}
 	ts := tokenSource{accessToken: string(token)}
 	client := godo.NewClient(oauth2.NewClient(oauth2.NoContext, ts))
-	dom, err := client.Domains.Get(subdomain + "." + domain)
+	dom, _, err := client.Domains.Get(domain)
 	if err != nil {
 		log.Fatal(err)
 	}
 	logFile, err := os.OpenFile("doddns-client.log", os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
-		log.Fatal("unable to open log file")
+		log.Fatal(err)
 	}
 	log.SetOutput(logFile)
 	for {
 		if err := Update(domain, subdomain, ipServer, client); err != nil {
 			log.Println(err)
 		}
-		time.Sleep(time.Duration(*finterval) * dom.TTL)
+		time.Sleep(time.Duration(dom.TTL) + time.Second)
 	}
 }
