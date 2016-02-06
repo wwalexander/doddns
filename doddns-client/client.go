@@ -68,7 +68,8 @@ const usage = `usage: doddns-client [domain] [subdomain] [URI] [token]
 doddns-client periodically updates the DNS A record for subdomain.domain using
 the IP address returned by the named HTTP/HTTPS URI. To authenticate,
 doddns-client uses the DigitalOcean API token saved at the named path. The
-record is updated to match the TTL of the domain.
+record is updated to match the TTL of the domain, in order to avoid doing
+useless DNS updates between TTL timeouts.`
 
 doddns-server provides an implementation of a server that can be used by
 doddns-client.`
@@ -106,6 +107,6 @@ func main() {
 		if err := Update(domain, subdomain, ipServer, client); err != nil {
 			log.Println(err)
 		}
-		time.Sleep(time.Duration(dom.TTL) * time.Second)
+		time.Sleep(time.Duration(dom.TTL) + time.Second)
 	}
 }
