@@ -71,9 +71,6 @@ doddns-client uses the DigitalOcean API token saved at the named path. The
 record is updated to match the TTL of the domain, in order to avoid doing
 useless DNS updates between TTL timeouts.`
 
-doddns-server provides an implementation of a server that can be used by
-doddns-client.`
-
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, usage)
