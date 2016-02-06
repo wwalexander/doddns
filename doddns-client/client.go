@@ -106,6 +106,6 @@ func main() {
 		if err := Update(domain, subdomain, ipServer, client); err != nil {
 			log.Println(err)
 		}
-		time.Sleep(time.Duration(dom.TTL) + time.Second)
+		time.Sleep(time.Duration(dom.TTL) * time.Second)
 	}
 }
