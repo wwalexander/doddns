@@ -21,9 +21,9 @@ func (ts tokenSource) Token() (*oauth2.Token, error) {
 	return &oauth2.Token{AccessToken: ts.accessToken}, nil
 }
 
-// Update checks the client's current IP address against the DigitalOcean DNS A
-// record, and updates the record if necessary.
-func Update(domain string, subdomain string, ipServer string, client *godo.Client) error {
+// Update checks the client's current IP address against the DigitalOcean DNS
+// record of the given type, and updates the record if necessary.
+func Update(domain string, subdomain string, recordType string, ipServer string, client *godo.Client) error {
 	drs, _, err := client.Domains.Records(domain, nil)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 	var id *int
 	var addr string
 	for _, dr := range drs {
-		if dr.Type == "A" && dr.Name == subdomain {
+		if dr.Type == recordType && dr.Name == subdomain {
 			id = &dr.ID
 			addr = dr.Data
 		}
@@ -63,18 +63,21 @@ func Update(domain string, subdomain string, ipServer string, client *godo.Clien
 	return nil
 }
 
-const usage = `usage: doddns-client [domain] [subdomain] [URI] [token]
+const usage = `usage: doddns-client [-type type] domain subdomain URI token
 
-doddns-client periodically updates the DNS A record for subdomain.domain using
+doddns-client periodically updates the DNS record for subdomain.domain using
 the IP address returned by the named HTTP/HTTPS URI. To authenticate,
 doddns-client uses the DigitalOcean API token saved at the named path. The
 record is updated to match the TTL of the domain, in order to avoid doing
-useless DNS updates between TTL timeouts.`
+useless DNS updates between TTL timeouts. By default, doddns-client will update
+the A record; arbitrary record types can be specified with the -type flag.`
 
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, usage)
 	}
+	var recordType string
+	flag.StringVar(&recordType, "type", "A", "the type of record to update")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 4 {
@@ -83,7 +86,7 @@ func main() {
 	}
 	domain := args[0]
 	subdomain := args[1]
-	ipServer := args[2]
+	uri := args[2]
 	tokenPath := args[3]
 	token, err := ioutil.ReadFile(tokenPath)
 	if err != nil {
@@ -101,7 +104,7 @@ func main() {
 	}
 	log.SetOutput(logFile)
 	for {
-		if err := Update(domain, subdomain, ipServer, client); err != nil {
+		if err := Update(domain, subdomain, recordType, uri, client); err != nil {
 			log.Println(err)
 		}
 		time.Sleep(time.Duration(dom.TTL) + time.Second)
